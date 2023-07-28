@@ -662,7 +662,42 @@ int main(int argc, const char* argv[]) {
         }
 
         if (opt_channel_type == CHANNEL_TYPE_SERIALPORT) {
-            drv->setMotorSpeed(settings.get_motor_speed());
+            if (settings.get_is_verbose()) {
+                std::cout << "Set motor speed to " << settings.get_motor_speed() << std::endl;
+            }
+            //drv->setMotorSpeed();
+            // Trying to change the motor speed:
+            sl_result setSpeedResult = drv->setMotorSpeed(settings.get_motor_speed());
+            if (settings.get_is_verbose()) {
+                std::cout << "setMotorSpeed: ";
+                switch (setSpeedResult) {
+                case SL_RESULT_OK:
+                    std::cout << "ok" << std::endl;
+                    break;
+                case SL_RESULT_OPERATION_FAIL:
+                    std::cout << "fail" << std::endl;
+                    break;
+                case SL_RESULT_OPERATION_NOT_SUPPORT:
+                    std::cout << "not support" << std::endl;
+                    break;
+                case SL_RESULT_OPERATION_STOP:
+                    std::cout << "stop" << std::endl;
+                    break;
+                case SL_RESULT_OPERATION_TIMEOUT:
+                    std::cout << "timeout" << std::endl;
+                    break;
+                }
+
+                // print config
+                LidarMotorInfo motorInfo;
+                drv->getMotorInfo(motorInfo);
+                std::cout << "getMotorInfo:" << std::endl;
+                std::cout << " - max_speed: " << motorInfo.max_speed << std::endl;
+                std::cout << " - min_speed: " << motorInfo.min_speed << std::endl;
+                std::cout << " - desired_speed: " << motorInfo.desired_speed << std::endl;
+                std::cout << " - motorCtrlSupport: " << motorInfo.motorCtrlSupport << std::endl; //0=none, 1=pwm, 2=rpm
+                std::cout << "   (0=none, 1=pwm, 2=rpm)" << std::endl;
+            }
         }
 
         // Lists the scan modes and try to guess which one to use
